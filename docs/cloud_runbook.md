@@ -24,6 +24,14 @@ cd ~/projects/grpo-qwen/repo
 bash cloud/setup_cloud_env.sh
 ```
 
+If cloning `verl` from GitHub fails with `RPC failed`, `early EOF`, or
+`invalid index-pack output`, re-run the setup command. The setup script uses a
+shallow clone and retries by default. You can also increase retries:
+
+```bash
+VERL_CLONE_RETRIES=5 bash cloud/setup_cloud_env.sh
+```
+
 Notes:
 
 - Use a recent CUDA/PyTorch/vLLM stack supported by your installed verl version.
@@ -115,4 +123,3 @@ Do not send checkpoints. Send:
 - verl data preparation: https://verl.readthedocs.io/en/latest/preparation/prepare_data.html
 - verl reward functions: https://verl.readthedocs.io/en/latest/preparation/reward_function.html
 - verl LoRA support: https://verl.readthedocs.io/en/latest/advance/ppo_lora.html
-
