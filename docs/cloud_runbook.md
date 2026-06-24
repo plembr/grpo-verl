@@ -113,6 +113,16 @@ TRAINER_USE_V1=false bash cloud/train_grpo_gsm8k_qwen15b.sh
 This is the script default because it is more stable across fresh `verl`
 checkouts.
 
+If model initialization fails because `flash_attn` is not installed, use PyTorch
+SDPA attention:
+
+```bash
+ATTN_IMPLEMENTATION=sdpa bash cloud/train_grpo_gsm8k_qwen15b.sh
+```
+
+This is also the script default. Install FlashAttention later only if you want
+the extra speed and your PyTorch/CUDA stack has matching wheels.
+
 ## 5. Larger Run
 
 After toy training works:

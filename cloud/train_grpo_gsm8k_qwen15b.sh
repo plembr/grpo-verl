@@ -34,6 +34,7 @@ USE_LORA="${USE_LORA:-1}"
 LORA_RANK="${LORA_RANK:-32}"
 LORA_ALPHA="${LORA_ALPHA:-32}"
 TRAINER_USE_V1="${TRAINER_USE_V1:-false}"
+ATTN_IMPLEMENTATION="${ATTN_IMPLEMENTATION:-sdpa}"
 
 LORA_ARGS=()
 if [[ "$USE_LORA" == "1" ]]; then
@@ -60,6 +61,7 @@ python -m verl.trainer.main_ppo \
   data.filter_overlong_prompts=True \
   data.truncation=error \
   actor_rollout_ref.model.path="$MODEL_PATH" \
+  +actor_rollout_ref.model.override_config.attn_implementation="$ATTN_IMPLEMENTATION" \
   actor_rollout_ref.model.use_remove_padding=True \
   actor_rollout_ref.model.enable_gradient_checkpointing=True \
   actor_rollout_ref.actor.strategy=fsdp \
