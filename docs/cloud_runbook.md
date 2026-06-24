@@ -103,6 +103,16 @@ ROLLOUT_N -> 2
 ROLLOUT_GPU_MEMORY_UTILIZATION -> 0.35
 ```
 
+If training fails with `ModuleNotFoundError: No module named 'transfer_queue'`,
+use the legacy trainer path:
+
+```bash
+TRAINER_USE_V1=false bash cloud/train_grpo_gsm8k_qwen15b.sh
+```
+
+This is the script default because it is more stable across fresh `verl`
+checkouts.
+
 ## 5. Larger Run
 
 After toy training works:

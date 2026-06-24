@@ -33,6 +33,7 @@ TEST_FREQ="${TEST_FREQ:-20}"
 USE_LORA="${USE_LORA:-1}"
 LORA_RANK="${LORA_RANK:-32}"
 LORA_ALPHA="${LORA_ALPHA:-32}"
+TRAINER_USE_V1="${TRAINER_USE_V1:-false}"
 
 LORA_ARGS=()
 if [[ "$USE_LORA" == "1" ]]; then
@@ -91,5 +92,5 @@ python -m verl.trainer.main_ppo \
   trainer.save_freq="$SAVE_FREQ" \
   trainer.test_freq="$TEST_FREQ" \
   trainer.total_epochs="$TOTAL_EPOCHS" \
+  trainer.use_v1="$TRAINER_USE_V1" \
   "${LORA_ARGS[@]}"
-
