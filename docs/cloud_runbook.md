@@ -1,0 +1,118 @@
+# Cloud Runbook
+
+Use this project as a code-only repo. Keep datasets, models, checkpoints, and
+logs on the cloud machine.
+
+## Recommended Cloud Layout
+
+```text
+~/projects/grpo-qwen/
+  repo/       # git clone of this project
+  data/       # GSM8K parquet
+  outputs/    # verl checkpoints and eval logs
+```
+
+## 1. Install Environment
+
+The most stable route is to use a verl Docker image or a cloud image that already
+has CUDA, PyTorch, vLLM, and verl installed.
+
+If you are starting from a fresh Python environment:
+
+```bash
+cd ~/projects/grpo-qwen/repo
+bash cloud/setup_cloud_env.sh
+```
+
+Notes:
+
+- Use a recent CUDA/PyTorch/vLLM stack supported by your installed verl version.
+- If package versions fight each other, prefer the official verl Docker image.
+- Keep Hugging Face dataset and model caches on the cloud disk.
+
+## 2. Prepare GSM8K
+
+Toy data first:
+
+```bash
+cd ~/projects/grpo-qwen/repo
+TRAIN_LIMIT=128 TEST_LIMIT=64 bash cloud/prepare_gsm8k.sh
+```
+
+Full data:
+
+```bash
+cd ~/projects/grpo-qwen/repo
+bash cloud/prepare_gsm8k.sh
+```
+
+## 3. Baseline Eval
+
+```bash
+cd ~/projects/grpo-qwen/repo
+LIMIT=100 bash cloud/eval_qwen15b_gsm8k.sh
+```
+
+Save the printed `accuracy` and `format_rate` before training.
+
+## 4. Toy GRPO Run
+
+Start with conservative settings:
+
+```bash
+cd ~/projects/grpo-qwen/repo
+TRAIN_BATCH_SIZE=32 \
+VAL_BATCH_SIZE=32 \
+ROLLOUT_N=4 \
+MAX_RESPONSE_LENGTH=512 \
+TOTAL_EPOCHS=1 \
+SAVE_FREQ=20 \
+TEST_FREQ=20 \
+EXPERIMENT_NAME=qwen15b-gsm8k-grpo-toy \
+bash cloud/train_grpo_gsm8k_qwen15b.sh
+```
+
+If it OOMs, reduce in this order:
+
+```text
+MAX_RESPONSE_LENGTH -> 256
+TRAIN_BATCH_SIZE -> 16
+ROLLOUT_N -> 2
+ROLLOUT_GPU_MEMORY_UTILIZATION -> 0.35
+```
+
+## 5. Larger Run
+
+After toy training works:
+
+```bash
+cd ~/projects/grpo-qwen/repo
+TRAIN_BATCH_SIZE=64 \
+VAL_BATCH_SIZE=64 \
+ROLLOUT_N=4 \
+MAX_RESPONSE_LENGTH=1024 \
+TOTAL_EPOCHS=3 \
+SAVE_FREQ=100 \
+TEST_FREQ=100 \
+EXPERIMENT_NAME=qwen15b-gsm8k-grpo-run001 \
+bash cloud/train_grpo_gsm8k_qwen15b.sh
+```
+
+## 6. What To Send Back When Debugging
+
+Do not send checkpoints. Send:
+
+- the exact command
+- the last 100-200 log lines
+- GPU type and memory
+- `nvidia-smi` snapshot
+- changed environment variables
+- eval summary JSON
+
+## References
+
+- verl installation: https://verl.readthedocs.io/en/latest/start/install.html
+- verl data preparation: https://verl.readthedocs.io/en/latest/preparation/prepare_data.html
+- verl reward functions: https://verl.readthedocs.io/en/latest/preparation/reward_function.html
+- verl LoRA support: https://verl.readthedocs.io/en/latest/advance/ppo_lora.html
+

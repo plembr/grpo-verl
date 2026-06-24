@@ -1,0 +1,7 @@
+datasets
+pyarrow
+transformers
+accelerate
+torch
+tqdm
+
