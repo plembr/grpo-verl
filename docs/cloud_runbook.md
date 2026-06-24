@@ -47,6 +47,20 @@ cd ~/projects/grpo-qwen/repo
 TRAIN_LIMIT=128 TEST_LIMIT=64 bash cloud/prepare_gsm8k.sh
 ```
 
+On cloud providers with slow or blocked Hugging Face access, try a mirror:
+
+```bash
+export HF_ENDPOINT=https://hf-mirror.com
+TRAIN_LIMIT=128 TEST_LIMIT=64 bash cloud/prepare_gsm8k.sh
+```
+
+If the dataset still cannot be reached, generate the built-in sample data just
+to smoke-test the training pipeline:
+
+```bash
+SAMPLE_DATA=1 bash cloud/prepare_gsm8k.sh
+```
+
 Full data:
 
 ```bash
