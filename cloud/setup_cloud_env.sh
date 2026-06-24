@@ -8,6 +8,7 @@ VERL_REPO_URL="${VERL_REPO_URL:-https://github.com/verl-project/verl.git}"
 VERL_REF="${VERL_REF:-main}"
 VERL_CLONE_DEPTH="${VERL_CLONE_DEPTH:-1}"
 VERL_CLONE_RETRIES="${VERL_CLONE_RETRIES:-3}"
+INSTALL_FLASH_ATTN="${INSTALL_FLASH_ATTN:-0}"
 
 clone_verl() {
   local parent_dir tmp_dir attempt
@@ -40,6 +41,10 @@ clone_verl() {
 
 python -m pip install -U pip wheel setuptools
 python -m pip install -r "$REPO_ROOT/requirements-cloud.txt"
+
+if [[ "$INSTALL_FLASH_ATTN" == "1" ]]; then
+  MAX_JOBS="${MAX_JOBS:-8}" python -m pip install flash-attn --no-build-isolation
+fi
 
 if python - <<'PY'
 import importlib.util

@@ -121,14 +121,21 @@ ATTN_IMPLEMENTATION=sdpa bash cloud/train_grpo_gsm8k_qwen15b.sh
 ```
 
 If training later fails in padding utilities with the same missing `flash_attn`
-module, disable remove-padding:
+module, install FlashAttention:
 
 ```bash
-USE_REMOVE_PADDING=False bash cloud/train_grpo_gsm8k_qwen15b.sh
+MAX_JOBS=8 python -m pip install flash-attn --no-build-isolation
 ```
 
-Both settings are script defaults. Install FlashAttention later only if you want
-the extra speed and your PyTorch/CUDA stack has matching wheels.
+The setup script can also do this when requested:
+
+```bash
+INSTALL_FLASH_ATTN=1 bash cloud/setup_cloud_env.sh
+```
+
+If compilation is slow or memory-heavy, lower `MAX_JOBS`, for example
+`MAX_JOBS=4`. Make sure the installed PyTorch/CUDA stack is stable before
+installing FlashAttention.
 
 ## 5. Larger Run
 
