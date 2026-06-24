@@ -120,7 +120,14 @@ SDPA attention:
 ATTN_IMPLEMENTATION=sdpa bash cloud/train_grpo_gsm8k_qwen15b.sh
 ```
 
-This is also the script default. Install FlashAttention later only if you want
+If training later fails in padding utilities with the same missing `flash_attn`
+module, disable remove-padding:
+
+```bash
+USE_REMOVE_PADDING=False bash cloud/train_grpo_gsm8k_qwen15b.sh
+```
+
+Both settings are script defaults. Install FlashAttention later only if you want
 the extra speed and your PyTorch/CUDA stack has matching wheels.
 
 ## 5. Larger Run
