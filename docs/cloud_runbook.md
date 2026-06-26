@@ -203,6 +203,16 @@ If `max_abs_diff` is nonzero but `same_argmax_rate` is high, the adapter is
 loaded but the update is too small to change greedy decoding. If diffs are zero,
 check adapter export/loading.
 
+If LoRA A/B weights are nonzero but logits still do not change, inspect adapter
+scaling. PEFT reports this on LoRA modules as `scaling`. A value of `0.0` means
+the adapter delta is multiplied away. Repair the exported adapter config:
+
+```bash
+python scripts/fix_lora_adapter_config.py \
+  --adapter-path /root/autodl-tmp/grpo-qwen/outputs/.../lora_adapter \
+  --alpha 32
+```
+
 ## References
 
 - verl installation: https://verl.readthedocs.io/en/latest/start/install.html
