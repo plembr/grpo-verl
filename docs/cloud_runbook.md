@@ -189,6 +189,20 @@ Do not send checkpoints. Send:
 - changed environment variables
 - eval summary JSON
 
+If baseline and adapter eval produce identical responses, compare logits:
+
+```bash
+python scripts/compare_lora_logits.py \
+  --adapter-path /root/autodl-tmp/grpo-qwen/outputs/.../lora_adapter \
+  --data /root/autodl-tmp/grpo-qwen/data/gsm8k_verl/test.parquet \
+  --limit 8 \
+  --output /root/autodl-tmp/grpo-qwen/outputs/logit_compare.jsonl
+```
+
+If `max_abs_diff` is nonzero but `same_argmax_rate` is high, the adapter is
+loaded but the update is too small to change greedy decoding. If diffs are zero,
+check adapter export/loading.
+
 ## References
 
 - verl installation: https://verl.readthedocs.io/en/latest/start/install.html

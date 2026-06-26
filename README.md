@@ -21,6 +21,7 @@ grpo-verl/
   scripts/
     prepare_gsm8k_verl.py         # download/convert GSM8K to verl parquet
     eval_gsm8k_local.py           # simple baseline/checkpoint eval
+    compare_lora_logits.py        # diagnose whether a LoRA adapter changes logits
   cloud/
     setup_cloud_env.sh            # optional dependency setup
     prepare_gsm8k.sh              # cloud data preparation
@@ -117,3 +118,14 @@ python -m pytest tests
 python scripts\prepare_gsm8k_verl.py --sample-data --output-dir D:\grpo-verl\tmp_gsm8k_verl_smoke --format jsonl --limit 8
 ```
 
+## Adapter Diagnostics
+
+If a trained LoRA adapter produces identical greedy responses to the base model,
+compare logits directly:
+
+```bash
+python scripts/compare_lora_logits.py \
+  --adapter-path /path/to/lora_adapter \
+  --data /path/to/test.parquet \
+  --limit 8
+```
