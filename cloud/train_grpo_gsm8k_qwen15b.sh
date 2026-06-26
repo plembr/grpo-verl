@@ -11,6 +11,7 @@ DATA_DIR="${DATA_DIR:-$HOME/projects/grpo-qwen/data/gsm8k_verl}"
 TRAIN_FILES="${TRAIN_FILES:-$DATA_DIR/train.parquet}"
 TEST_FILES="${TEST_FILES:-$DATA_DIR/test.parquet}"
 OUTPUT_DIR="${OUTPUT_DIR:-$HOME/projects/grpo-qwen/outputs}"
+RAY_TMP_DIR="${RAY_TMP_DIR:-$OUTPUT_DIR/ray_tmp}"
 PROJECT_NAME="${PROJECT_NAME:-qwen15b-gsm8k-grpo}"
 EXPERIMENT_NAME="${EXPERIMENT_NAME:-qwen2_5_1_5b_grpo_lora_toy}"
 REWARD_PATH="${REWARD_PATH:-$REPO_ROOT/grpo_verl/rewards/gsm8k_reward.py}"
@@ -31,6 +32,8 @@ DATALOADER_NUM_WORKERS="${DATALOADER_NUM_WORKERS:-0}"
 TOTAL_EPOCHS="${TOTAL_EPOCHS:-1}"
 SAVE_FREQ="${SAVE_FREQ:-20}"
 TEST_FREQ="${TEST_FREQ:-20}"
+MAX_ACTOR_CKPT_TO_KEEP="${MAX_ACTOR_CKPT_TO_KEEP:-1}"
+MAX_CRITIC_CKPT_TO_KEEP="${MAX_CRITIC_CKPT_TO_KEEP:-1}"
 USE_LORA="${USE_LORA:-1}"
 LORA_RANK="${LORA_RANK:-32}"
 LORA_ALPHA="${LORA_ALPHA:-32}"
@@ -48,7 +51,9 @@ if [[ "$USE_LORA" == "1" ]]; then
   )
 fi
 
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR" "$RAY_TMP_DIR"
+export TMPDIR="$RAY_TMP_DIR"
+export RAY_TMPDIR="$RAY_TMP_DIR"
 cd "$REPO_ROOT"
 
 python -m verl.trainer.main_ppo \
@@ -97,5 +102,8 @@ python -m verl.trainer.main_ppo \
   trainer.save_freq="$SAVE_FREQ" \
   trainer.test_freq="$TEST_FREQ" \
   trainer.total_epochs="$TOTAL_EPOCHS" \
+  trainer.max_actor_ckpt_to_keep="$MAX_ACTOR_CKPT_TO_KEEP" \
+  trainer.max_critic_ckpt_to_keep="$MAX_CRITIC_CKPT_TO_KEEP" \
   trainer.use_v1="$TRAINER_USE_V1" \
+  +ray_kwargs.ray_init._temp_dir="$RAY_TMP_DIR" \
   "${LORA_ARGS[@]}"

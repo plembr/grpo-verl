@@ -146,6 +146,21 @@ DATALOADER_NUM_WORKERS=0 bash cloud/train_grpo_gsm8k_qwen15b.sh
 
 This is the script default for small toy runs.
 
+If Ray reports `/tmp/ray` is over 95% full or checkpoint saving fails with
+`PytorchStreamWriter failed writing file`, stop Ray, clean the old Ray session,
+and put Ray temporary files on the larger output disk:
+
+```bash
+ray stop --force || true
+rm -rf /tmp/ray
+RAY_TMP_DIR=$HOME/projects/grpo-qwen/outputs/ray_tmp \
+MAX_ACTOR_CKPT_TO_KEEP=1 \
+bash cloud/train_grpo_gsm8k_qwen15b.sh
+```
+
+The training script uses these defaults, but the explicit command is useful
+after a failed run has already filled `/tmp/ray`.
+
 ## 5. Larger Run
 
 After toy training works:
