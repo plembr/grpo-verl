@@ -12,7 +12,36 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.eval_gsm8k_local import _load_rows, _prompt_text
+
+def _load_rows(path: Path, limit: int = 0) -> list[dict[str, Any]]:
+    if path.suffix == ".jsonl":
+        rows: list[dict[str, Any]] = []
+        with path.open("r", encoding="utf-8") as file:
+            for line in file:
+                line = line.strip()
+                if line:
+                    rows.append(json.loads(line))
+                if limit > 0 and len(rows) >= limit:
+                    break
+        return rows
+
+    if path.suffix == ".parquet":
+        try:
+            import pyarrow.parquet as pq
+        except ImportError as exc:
+            raise RuntimeError("Reading parquet requires pyarrow.") from exc
+        rows = pq.read_table(path).to_pylist()
+        return rows[:limit] if limit > 0 else rows
+
+    raise ValueError(f"Unsupported data file format: {path}")
+
+
+def _prompt_text(tokenizer: Any, messages: list[dict[str, str]]) -> str:
+    if hasattr(tokenizer, "apply_chat_template"):
+        return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    parts = [f"{message.get('role', 'user')}:\n{message.get('content', '')}" for message in messages]
+    parts.append("assistant:\n")
+    return "\n".join(parts)
 
 
 def _load_base_and_adapter(model_path: str, adapter_path: str) -> tuple[Any, Any, str]:
