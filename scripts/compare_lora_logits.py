@@ -44,7 +44,7 @@ def _prompt_text(tokenizer: Any, messages: list[dict[str, str]]) -> str:
     return "\n".join(parts)
 
 
-def _load_base_and_adapter(model_path: str, adapter_path: str) -> tuple[Any, Any, str]:
+def _load_models(model_path: str, adapter_path: str) -> tuple[Any, Any, Any, str]:
     import torch
     from peft import PeftModel
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -61,9 +61,30 @@ def _load_base_and_adapter(model_path: str, adapter_path: str) -> tuple[Any, Any
         torch_dtype=dtype,
         device_map="auto" if device == "cuda" else None,
     )
-    adapter_model = PeftModel.from_pretrained(base_model, adapter_path)
+    adapter_base_model = AutoModelForCausalLM.from_pretrained(
+        model_path,
+        trust_remote_code=True,
+        torch_dtype=dtype,
+        device_map="auto" if device == "cuda" else None,
+    )
+    adapter_model = PeftModel.from_pretrained(adapter_base_model, adapter_path)
+    adapter_model.set_adapter("default")
+    adapter_model.enable_adapter_layers()
+    base_model.eval()
     adapter_model.eval()
-    return adapter_model, tokenizer, device
+    return base_model, adapter_model, tokenizer, device
+
+
+def _lora_weight_summary(model: Any) -> dict[str, float]:
+    summary = {"lora_A_abs_sum": 0.0, "lora_B_abs_sum": 0.0}
+    for module in model.modules():
+        if hasattr(module, "lora_A"):
+            for layer in module.lora_A.values():
+                summary["lora_A_abs_sum"] += float(layer.weight.detach().abs().sum().cpu())
+        if hasattr(module, "lora_B"):
+            for layer in module.lora_B.values():
+                summary["lora_B_abs_sum"] += float(layer.weight.detach().abs().sum().cpu())
+    return summary
 
 
 def _last_token_logits(model: Any, tokenizer: Any, messages: list[dict[str, str]]) -> tuple[Any, int]:
@@ -104,7 +125,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     rows = _load_rows(Path(args.data), limit=args.limit)
-    model, tokenizer, device = _load_base_and_adapter(args.model_path, args.adapter_path)
+    base_model, adapter_model, tokenizer, device = _load_models(args.model_path, args.adapter_path)
 
     results: list[dict[str, Any]] = []
     summary = {
@@ -117,14 +138,14 @@ def main() -> int:
         "mean_abs_diff": 0.0,
         "same_argmax": 0,
     }
+    summary.update(_lora_weight_summary(adapter_model))
 
     diff_sum = 0.0
     for row in tqdm(rows, desc="compare"):
         messages = row["prompt"]
 
-        with model.disable_adapter():
-            base_logits, prompt_tokens = _last_token_logits(model, tokenizer, messages)
-        adapter_logits, _ = _last_token_logits(model, tokenizer, messages)
+        base_logits, prompt_tokens = _last_token_logits(base_model, tokenizer, messages)
+        adapter_logits, _ = _last_token_logits(adapter_model, tokenizer, messages)
         diff = adapter_logits - base_logits
 
         max_abs_diff = float(diff.abs().max())
