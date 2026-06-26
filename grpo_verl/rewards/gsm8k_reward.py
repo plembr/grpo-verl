@@ -104,7 +104,7 @@ def score_response(solution_str: str, ground_truth: str) -> dict[str, Any]:
 def compute_score(
     data_source: str,
     solution_str: str | None = None,
-    ground_truth: str | None = None,
+    ground_truth: str | dict[str, Any] | None = None,
     extra_info: dict[str, Any] | None = None,
 ) -> float:
     """verl-compatible GSM8K rule reward.
@@ -117,8 +117,12 @@ def compute_score(
         ground_truth = solution_str or ""
         solution_str = data_source
         data_source = ""
+    elif isinstance(ground_truth, dict) and extra_info is None:
+        extra_info = ground_truth
+        ground_truth = solution_str or ""
+        solution_str = data_source
+        data_source = ""
 
     del data_source
     del extra_info
     return float(score_response(solution_str or "", ground_truth or "")["score"])
-

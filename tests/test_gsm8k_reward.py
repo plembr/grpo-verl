@@ -26,6 +26,10 @@ def test_two_argument_compatibility() -> None:
     assert compute_score("Reasoning\n#### 18", "work\n#### 18") == 1.0
 
 
+def test_three_argument_compatibility() -> None:
+    assert compute_score("Reasoning\n#### 18", "18", {"split": "test"}) == 1.0
+
+
 def test_wrong_answer_with_marker_gets_small_format_reward() -> None:
     details = score_response("Reasoning\n#### 19", "work\n#### 18")
 
@@ -35,4 +39,3 @@ def test_wrong_answer_with_marker_gets_small_format_reward() -> None:
 
 def test_missing_number_scores_zero() -> None:
     assert compute_score("No final answer", "work\n#### 18") == 0.0
-

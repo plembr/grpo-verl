@@ -36,5 +36,6 @@ def test_prepare_sample_jsonl(tmp_path: Path) -> None:
     assert first["ability"] == "math"
     assert first["prompt"][0]["role"] == "system"
     assert first["reward_model"]["style"] == "rule"
-    assert "ground_truth" in first["reward_model"]
-
+    assert first["reward_model"]["ground_truth"].isdigit()
+    assert "####" not in first["reward_model"]["ground_truth"]
+    assert "####" in first["extra_info"]["answer"]

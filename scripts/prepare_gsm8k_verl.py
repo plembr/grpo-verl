@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import re
 from pathlib import Path
 from typing import Any
 
@@ -49,6 +50,15 @@ SAMPLE_ROWS = [
     },
 ]
 
+FINAL_ANSWER_RE = re.compile(r"####\s*([^\n\r]+)")
+
+
+def _extract_final_answer(answer: str) -> str:
+    match = FINAL_ANSWER_RE.search(str(answer or ""))
+    if match:
+        return match.group(1).replace(",", "").strip()
+    return str(answer or "").strip()
+
 
 def _load_gsm8k(split: str) -> list[dict[str, str]]:
     try:
@@ -71,19 +81,21 @@ def _make_prompt(question: str) -> list[dict[str, str]]:
 
 
 def _to_verl_row(row: dict[str, str], split: str, index: int) -> dict[str, Any]:
+    ground_truth = _extract_final_answer(row["answer"])
     return {
         "data_source": DATA_SOURCE,
         "prompt": _make_prompt(row["question"]),
         "ability": ABILITY,
         "reward_model": {
             "style": "rule",
-            "ground_truth": row["answer"],
+            "ground_truth": ground_truth,
         },
         "extra_info": {
             "split": split,
             "index": index,
             "question": row["question"],
             "answer": row["answer"],
+            "ground_truth": ground_truth,
         },
     }
 
@@ -175,4 +187,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
