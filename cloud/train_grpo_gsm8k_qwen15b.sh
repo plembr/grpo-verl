@@ -27,6 +27,7 @@ ACTOR_LR="${ACTOR_LR:-3e-5}"
 PPO_MINI_BATCH_SIZE="${PPO_MINI_BATCH_SIZE:-32}"
 PPO_MICRO_BATCH_SIZE_PER_GPU="${PPO_MICRO_BATCH_SIZE_PER_GPU:-1}"
 LOG_PROB_MICRO_BATCH_SIZE_PER_GPU="${LOG_PROB_MICRO_BATCH_SIZE_PER_GPU:-1}"
+DATALOADER_NUM_WORKERS="${DATALOADER_NUM_WORKERS:-0}"
 TOTAL_EPOCHS="${TOTAL_EPOCHS:-1}"
 SAVE_FREQ="${SAVE_FREQ:-20}"
 TEST_FREQ="${TEST_FREQ:-20}"
@@ -59,6 +60,7 @@ python -m verl.trainer.main_ppo \
   data.val_batch_size="$VAL_BATCH_SIZE" \
   data.max_prompt_length="$MAX_PROMPT_LENGTH" \
   data.max_response_length="$MAX_RESPONSE_LENGTH" \
+  data.dataloader_num_workers="$DATALOADER_NUM_WORKERS" \
   data.filter_overlong_prompts=True \
   data.truncation=error \
   actor_rollout_ref.model.path="$MODEL_PATH" \

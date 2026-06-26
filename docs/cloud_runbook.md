@@ -137,6 +137,15 @@ If compilation is slow or memory-heavy, lower `MAX_JOBS`, for example
 `MAX_JOBS=4`. Make sure the installed PyTorch/CUDA stack is stable before
 installing FlashAttention.
 
+If training reaches `100%` and then prints `DataLoader worker ... is killed by
+signal: Killed` during Python shutdown, reduce dataloader workers:
+
+```bash
+DATALOADER_NUM_WORKERS=0 bash cloud/train_grpo_gsm8k_qwen15b.sh
+```
+
+This is the script default for small toy runs.
+
 ## 5. Larger Run
 
 After toy training works:
