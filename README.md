@@ -91,9 +91,9 @@ compute_score(data_source, solution_str, ground_truth, extra_info)
 
 Scoring:
 
-- exact final answer match: `1.0`
-- numeric answer present but wrong: `0.1`
-- no parseable final answer: `0.0`
+- correct answer with `####`: `1.0`
+- correct answer without `####`: `0.7`
+- wrong or unparseable answer: `0.0`
 
 Preferred answer format:
 

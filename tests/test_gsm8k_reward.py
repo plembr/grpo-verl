@@ -33,8 +33,16 @@ def test_three_argument_compatibility() -> None:
 def test_wrong_answer_with_marker_gets_small_format_reward() -> None:
     details = score_response("Reasoning\n#### 19", "work\n#### 18")
 
-    assert details["score"] == 0.1
+    assert details["score"] == 0.0
     assert details["correct"] is False
+
+
+def test_correct_answer_without_marker_gets_partial_reward() -> None:
+    details = score_response("Reasoning. The answer is 18.", "work\n#### 18")
+
+    assert details["score"] == 0.7
+    assert details["correct"] is True
+    assert details["has_final_marker"] is False
 
 
 def test_missing_number_scores_zero() -> None:

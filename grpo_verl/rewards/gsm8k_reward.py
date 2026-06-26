@@ -85,9 +85,9 @@ def score_response(solution_str: str, ground_truth: str) -> dict[str, Any]:
 
     correct = is_equivalent_number(prediction, reference)
     if correct:
-        score = 1.0 if has_final_marker else 0.8
+        score = 1.0 if has_final_marker else 0.7
     else:
-        score = 0.1 if has_final_marker else 0.0
+        score = 0.0
 
     if not math.isfinite(score):
         score = 0.0

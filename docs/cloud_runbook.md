@@ -94,6 +94,27 @@ EXPERIMENT_NAME=qwen15b-gsm8k-grpo-toy \
 bash cloud/train_grpo_gsm8k_qwen15b.sh
 ```
 
+The training script logs to console and TensorBoard by default:
+
+```bash
+LOGGER="['console','tensorboard']"
+```
+
+To find TensorBoard event files after training:
+
+```bash
+find /root/autodl-tmp/grpo-qwen/outputs -type f -name "events.out.tfevents*"
+```
+
+To open TensorBoard:
+
+```bash
+tensorboard --logdir /root/autodl-tmp/grpo-qwen/outputs --host 0.0.0.0 --port 6007
+```
+
+Useful curves include reward, validation accuracy, policy loss, KL, entropy,
+response length, gradient norm, and learning rate.
+
 If it OOMs, reduce in this order:
 
 ```text

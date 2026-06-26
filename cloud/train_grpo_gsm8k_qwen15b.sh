@@ -15,6 +15,7 @@ RAY_TMP_DIR="${RAY_TMP_DIR:-$OUTPUT_DIR/ray_tmp}"
 PROJECT_NAME="${PROJECT_NAME:-qwen15b-gsm8k-grpo}"
 EXPERIMENT_NAME="${EXPERIMENT_NAME:-qwen2_5_1_5b_grpo_lora_toy}"
 REWARD_PATH="${REWARD_PATH:-$REPO_ROOT/grpo_verl/rewards/gsm8k_reward.py}"
+LOGGER="${LOGGER:-['console','tensorboard']}"
 
 N_GPUS="${N_GPUS:-1}"
 TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-64}"
@@ -93,7 +94,7 @@ python -m verl.trainer.main_ppo \
   actor_rollout_ref.ref.fsdp_config.param_offload=True \
   custom_reward_function.path="$REWARD_PATH" \
   custom_reward_function.name=compute_score \
-  trainer.logger="['console']" \
+  trainer.logger="$LOGGER" \
   trainer.project_name="$PROJECT_NAME" \
   trainer.experiment_name="$EXPERIMENT_NAME" \
   trainer.default_local_dir="$OUTPUT_DIR/$EXPERIMENT_NAME" \
