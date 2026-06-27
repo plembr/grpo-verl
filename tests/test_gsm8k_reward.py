@@ -18,6 +18,19 @@ def test_extract_model_answer_prefers_final_marker() -> None:
     assert extract_model_answer(text) == "42"
 
 
+def test_extract_model_answer_handles_repeated_final_marker() -> None:
+    text = "Therefore, the final answer is:\n\n#### #### 52"
+
+    assert extract_model_answer(text) == "52"
+
+
+def test_repeated_final_marker_scores_correct() -> None:
+    details = score_response("Reasoning\n#### #### 18", "18")
+
+    assert details["score"] == 1.0
+    assert details["correct"] is True
+
+
 def test_exact_answer_scores_one() -> None:
     assert compute_score("openai/gsm8k", "Reasoning\n#### 18", "work\n#### 18", {}) == 1.0
 

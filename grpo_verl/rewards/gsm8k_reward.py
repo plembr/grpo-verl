@@ -28,12 +28,27 @@ def _to_decimal(value: str) -> Decimal | None:
         return None
 
 
+def _extract_final_marker_answer(text: str) -> str:
+    matches = list(FINAL_ANSWER_RE.finditer(str(text or "")))
+    for match in reversed(matches):
+        candidate = match.group(1)
+        numbers = NUMBER_RE.findall(candidate)
+        if numbers:
+            return _normalize_number_text(numbers[-1])
+
+        cleaned = _normalize_number_text(candidate.replace("####", ""))
+        if cleaned:
+            return cleaned
+
+    return ""
+
+
 def extract_reference_answer(answer: str) -> str:
     """Extract the GSM8K final answer after the canonical #### marker."""
 
-    match = FINAL_ANSWER_RE.search(str(answer or ""))
-    if match:
-        return _normalize_number_text(match.group(1))
+    marker_answer = _extract_final_marker_answer(str(answer or ""))
+    if marker_answer:
+        return marker_answer
 
     numbers = NUMBER_RE.findall(str(answer or ""))
     return _normalize_number_text(numbers[-1]) if numbers else ""
@@ -47,9 +62,9 @@ def extract_model_answer(solution_str: str) -> str:
     """
 
     text = str(solution_str or "")
-    match = FINAL_ANSWER_RE.search(text)
-    if match:
-        return _normalize_number_text(match.group(1))
+    marker_answer = _extract_final_marker_answer(text)
+    if marker_answer:
+        return marker_answer
 
     boxed = re.findall(r"\\boxed\{([^{}]+)\}", text)
     if boxed:
