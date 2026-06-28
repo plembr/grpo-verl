@@ -71,6 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--dtype", default="bfloat16")
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.8)
     parser.add_argument("--tensor-parallel-size", type=int, default=1)
+    parser.add_argument("--max-lora-rank", type=int, default=32)
     parser.add_argument("--max-model-len", type=int, default=0)
     parser.add_argument("--output", default="")
     return parser
@@ -97,6 +98,8 @@ def main() -> int:
         "gpu_memory_utilization": args.gpu_memory_utilization,
         "enable_lora": bool(args.adapter_path),
     }
+    if args.adapter_path:
+        llm_kwargs["max_lora_rank"] = args.max_lora_rank
     if args.max_model_len > 0:
         llm_kwargs["max_model_len"] = args.max_model_len
 
